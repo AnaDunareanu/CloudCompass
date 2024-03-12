@@ -4,11 +4,11 @@ Cloud Compass is an AI-powered flight price prediction tool designed to help use
 
 Desired features:
 
-- authentication 
-- the user will search by: origin, destination, date, airline company and he will get a forecasted flight price for the period that he selected
-- history of searches of each user
-- a map with the route for the desired flight (Google Maps)
-- weather in your destination
-- a recommandation of what to do/restaurants/hotels in your destiantion
+- Authentication: Secure access to personalized travel insights and features.
+- Search Functionality: Effortlessly find flights by specifying origin, destination, date, and airline company, with forecasted prices for the selected period.
+- Search History: Keep track of past searches for convenient reference and planning.
+- Interactive Route Map: Visualize flight routes using Google Maps integration.
+- Destination Weather: Access real-time weather information for your destination.
+- Local Recommendations: Discover recommendations for activities, restaurants, and hotels at your destination.
 
 (i hope that i will have time to implement all of them but this is how i would like it)
