@@ -2,11 +2,15 @@ import bcrypt
 from models.User import User 
 from config.__init__ import collection
 
+
+
 def generate_password_hash(password):
     bytes = password.encode('utf-8')
     salt = bcrypt.gensalt() 
     hashed_password = bcrypt.hashpw(bytes, salt)
     return salt, hashed_password
+
+
 
 def register_user(username, password):
     user = {
@@ -26,6 +30,9 @@ def register_user(username, password):
 
     new_user.save()
 
+
+
+
 def login_user(username, password):
     user = collection.find_one({'username': username})
     if not user:
@@ -38,8 +45,6 @@ def login_user(username, password):
     provided_hashed_password = bcrypt.hashpw(password.encode('utf-8'), stored_salt)
 
     # Check if the provided hashed password matches the stored hashed password
-    if provided_hashed_password == stored_hashed_password:
-        return 'Login successful'
-    else:
+    if provided_hashed_password != stored_hashed_password:
         return 'Invalid password'
         

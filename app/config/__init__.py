@@ -9,4 +9,6 @@ db = client['cloudCompass_db']
 # access collection within the database 
 collection = db['users']
 
+search_collection = db['search_history']
+
 
