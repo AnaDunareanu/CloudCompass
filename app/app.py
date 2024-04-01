@@ -28,6 +28,9 @@ def login():
     username = request.json.get('username')
     password = request.json.get('password')
 
+    if not username or not password:
+        return jsonify({'error': 'Username and password are required'}), 400
+
     # Call the login_user function
     result = login_user(username, password)
 
@@ -37,7 +40,7 @@ def login():
         return jsonify({'error': result}), 400
     else:
         # If result is not a string, login was successful
-        return jsonify({'message': 'Login successfull'}), 200
+        return jsonify({'message': 'Login successful'}), 200
     
 
 #Mock flights database
