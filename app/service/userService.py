@@ -45,6 +45,9 @@ def login_user(username, password):
     provided_hashed_password = bcrypt.hashpw(password.encode('utf-8'), stored_salt)
 
     # Check if the provided hashed password matches the stored hashed password
-    if provided_hashed_password != stored_hashed_password:
+    # if provided_hashed_password != stored_hashed_password:
+    #     return 'Invalid password'
+
+    if not bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password):
         return 'Invalid password'
         
