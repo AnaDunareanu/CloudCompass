@@ -13,11 +13,7 @@ def generate_password_hash(password):
 
 
 def register_user(username, password):
-    user = {
-        'username': username,
-        'password': password
-    }
-
+ 
     salt, hashed_password = generate_password_hash(password)
 
     if collection.find_one({'username': username}):
@@ -37,16 +33,8 @@ def login_user(username, password):
     user = collection.find_one({'username': username})
     if not user:
         return 'User not found'
-
-    stored_salt = user['salt']
+    
     stored_hashed_password = user['password']
-
-    # Hash the provided password with the stored salt
-    provided_hashed_password = bcrypt.hashpw(password.encode('utf-8'), stored_salt)
-
-    # Check if the provided hashed password matches the stored hashed password
-    # if provided_hashed_password != stored_hashed_password:
-    #     return 'Invalid password'
 
     if not bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password):
         return 'Invalid password'

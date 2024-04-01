@@ -1,7 +1,12 @@
 from flask import Flask, request, jsonify
 from service.userService import register_user, login_user
+from service.searchService import search_flights, log_search_history, get_search_history
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+
 
 app = Flask(__name__)
+app.config['JWT_SECRET_KEY'] = '6861756d696175'
+jwt = JWTManager(app)
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -17,8 +22,9 @@ def register():
         # If result is a string, it's an error message
         return jsonify({'error': result}), 400
     else:
-        # If result is not a string, registration was successful
-        return jsonify({'message': 'User registered successfully'}), 201
+        #Generate access token, registration was successful
+        access_token = create_access_token(identity=username)
+        return jsonify({'message': 'User registered successfully', 'token': access_token}), 201
     
 
     
@@ -39,39 +45,44 @@ def login():
         # If result is a string, it's an error message
         return jsonify({'error': result}), 400
     else:
-        # If result is not a string, login was successful
-        return jsonify({'message': 'Login successful'}), 200
+        #Generate access token, login was successful
+        access_token = create_access_token(identity=username)
+        return jsonify({'message': 'Login successful', 'token': access_token}), 200
     
-
-#Mock flights database
-
-flights = [
-    {'origin': 'NYC', 'destination': 'LAX', 'date': '2024-04-01', 'airline': 'Delta', 'price': 300},
-    {'origin': 'LAX', 'destination': 'NYC', 'date': '2024-04-01', 'airline': 'United', 'price': 350},
-    {'origin': 'NYC', 'destination': 'LAX', 'date': '2024-04-02', 'airline': 'Delta', 'price': 320},
-]
     
 
 @app.route('/search', methods=['GET'])
-def search_flights():
+@jwt_required()
+def search():
     origin = request.json.get('origin')
     destination = request.json.get('destination') 
     date = request.json.get('date') 
     airline = request.json.get('airline')
 
-    results = []
+    user_id = get_jwt_identity()
 
-    if not origin or not destination or not date or not airline:    
-        return jsonify({'error': 'All fields are required'}), 400
+    result = search_flights(origin, destination, date, airline)
 
-    for flight in flights:
-        if flight['origin'] == origin and flight['destination'] == destination and flight['date'] == date and flight['airline'] == airline:
-            results.append(flight)
+    log_search_history(user_id, origin, destination, date, airline)
 
-    if not results:
-        return jsonify({'message': 'No flights found'}), 404
-    
-    return jsonify(results), 200
+    if isinstance(result, str):
+        return jsonify({'error': result}), 400
+    else:
+        return jsonify(result), 200
+
+
+@app.route('/history', methods=['GET'])
+@jwt_required()
+def search_history():
+
+    user_id = get_jwt_identity()
+
+    search_history = get_search_history(user_id)
+
+    if not search_history:
+        return jsonify({'message': 'No search history found'}), 404
+
+    return jsonify(search_history), 200
 
 
 
