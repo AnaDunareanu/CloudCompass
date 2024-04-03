@@ -14,6 +14,9 @@ def register():
     username = request.json.get('username')
     password = request.json.get('password')
 
+    if not username or not password:
+        return jsonify({'error': 'Username and password are required'}), 400
+
     # Call the register_user function
     result = register_user(username, password)
 
@@ -87,4 +90,4 @@ def search_history():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=8000, debug=True)
