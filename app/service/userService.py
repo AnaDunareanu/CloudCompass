@@ -19,9 +19,6 @@ def register_user(username, password):
     if collection.find_one({'username': username}):
         return 'Username already exists'
     
-    if not username or not password:
-        return 'Username and password are required'
-    
     new_user = User(username=username, password=hashed_password, salt=salt)
 
     new_user.save()
@@ -30,12 +27,13 @@ def register_user(username, password):
 
 
 def login_user(username, password):
-    user = collection.find_one({'username': username})
-    if not user:
-        return 'User not found'
-    
-    stored_hashed_password = user['password']
 
-    if not bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password):
-        return 'Invalid password'
+    user = collection.find_one({'username': username})
+
+    if user:
+        stored_hashed_password = user.get('password')
+        if not bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password):
+            return 'Invalid username or password'
+    else:
+        return 'Invalid username or password'
         
