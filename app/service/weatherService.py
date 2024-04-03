@@ -2,12 +2,12 @@ import python_weather
 import asyncio
 
 
-async def get_weather():
+async def get_weather(city):
     # declare the client. format defaults to metric system (celcius, km/h, etc.)
     async with python_weather.Client(unit=python_weather.IMPERIAL) as client:
 
     # fetch a weather forecast from a city
-        weather = await client.get(location="Los Angeles")
+        weather = await client.get(location=city)
 
         forecast = {
             "temperature": f"{weather.temperature}°F",
@@ -15,8 +15,4 @@ async def get_weather():
         }
 
         return forecast
-    
-forecast = asyncio.run(get_weather())
-
-print(forecast)
     
