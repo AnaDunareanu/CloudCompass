@@ -1,0 +1,14 @@
+# Python
+*.pyc
+__pycache__/
+venv/
+*.pyo
+*.pyc
+*.pyd
+*.pyo
+__pycache__/
+*.bak
+*.swp
+
+# Flask
+instance/
