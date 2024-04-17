@@ -16,6 +16,15 @@ flights = [
     {'origin': 'ATL', 'destination': 'ABY', 'date': '2024-04-05', 'airline': 'Delta', 'price': 420},
 ]
 
+recommendations = {
+        'NYC': 'Try the famous pizza at Joe\'s Pizza in Manhattan.',
+        'LAX': 'Visit the iconic Hollywood Walk of Fame.',
+        'ORD': 'Explore Millennium Park and see the Cloud Gate sculpture in Chicago.',
+        'ATL': 'Experience the Georgia Aquarium, one of the largest in the world.'
+    }
+
+
+
 geolocator = Nominatim(user_agent="CloudCompass")
 
 def get_city_from_coordinates(latitude, longitude):
@@ -26,6 +35,11 @@ def get_city_from_coordinates(latitude, longitude):
     city = location.raw['address'].get('city', '')
     
     return city
+
+
+#Return a recommendation for a given destination
+def get_recommendation(destination):
+    return recommendations.get(destination, 'No recommendation available for this destination.')
 
 
 def search_flights(origin, destination, date, airline):
@@ -47,6 +61,9 @@ def search_flights(origin, destination, date, airline):
 
     orignCity = get_city_from_coordinates(locatie_origine.latitude, locatie_origine.longitude)
     destinationCity = get_city_from_coordinates(locatie_destinatie.latitude, locatie_destinatie.longitude)
+
+    #Get the recommendation for the destination
+    recommendation = get_recommendation(destination)
 
     # Fetch the weather forecast for both origin and destination
     origin_forecast = asyncio.run(get_weather(orignCity))
@@ -71,6 +88,7 @@ def search_flights(origin, destination, date, airline):
     for flight in results:
         flight['origin_forecast'] = origin_forecast
         flight['destination_forecast'] = destination_forecast
+        flight['recommendation'] = recommendation
 
     return results
 
