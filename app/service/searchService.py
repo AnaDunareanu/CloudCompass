@@ -73,10 +73,10 @@ def search_flights(origin, destination, date, airline):
     m = Map(location=[(locatie_origine.latitude + locatie_destinatie.latitude) / 2, (locatie_origine.longitude + locatie_destinatie.longitude) / 2], zoom_start=5)
 
     #Add a marker for the origin
-    Marker([locatie_origine.latitude, locatie_origine.longitude], tooltip='Origine', icon=Icon(color='green')).add_to(m)
+    Marker([locatie_origine.latitude, locatie_origine.longitude], tooltip='Origin', icon=Icon(color='green')).add_to(m)
 
     #Add a marker for the destination
-    Marker([locatie_destinatie.latitude, locatie_destinatie.longitude], tooltip='Destinație', icon=Icon(color='red')).add_to(m)
+    Marker([locatie_destinatie.latitude, locatie_destinatie.longitude], tooltip='Destination', icon=Icon(color='red')).add_to(m)
 
     #Add a line between the origin and destination
     PolyLine([(locatie_origine.latitude, locatie_origine.longitude), (locatie_destinatie.latitude, locatie_destinatie.longitude)], color='blue').add_to(m)
