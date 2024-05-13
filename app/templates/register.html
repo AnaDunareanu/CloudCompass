@@ -52,6 +52,7 @@
                         alert(data.error); // Display error message
                     } else {
                         // Registration successful, redirect to home page or handle as needed
+                        console.log(data.token);
                         alert(data.message);
                         window.location.href = '/home'; // Redirect to home page
                     }

@@ -1,0 +1,41 @@
+/* Sticky navbar */
+#navbar {
+    position: sticky;
+    top: 0;
+    background-color: #333; /* Add your desired background color */
+    z-index: 1000; /* Ensure the navbar is above other elements */
+}
+
+/* Navbar styles */
+#navbar nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 10px; /* Add padding for better spacing */
+}
+
+#navbar nav ul li {
+    display: inline;
+    margin-right: 20px;
+}
+
+#navbar nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+#navbar nav ul li a:hover {
+    text-decoration: underline;
+}
+
+/* Main content styles */
+main {
+    padding-top: 50px; /* Add padding to compensate for the fixed navbar */
+}
+
+.welcome {
+    text-align: center;
+    margin-top: 100px; /* Adjust the margin as needed */
+}
+
+/* Additional styles for main content */
+/* Add your custom styles here */
