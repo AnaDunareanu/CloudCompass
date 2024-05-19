@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search - Cloud Compass</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='search.css') }}"
+    />
+    <script src="{{ url_for('static', filename='auth.js') }}"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-curve/1.4.0/leaflet.curve.min.js"></script>
+  </head>
+  <body>
+    <header id="navbar">
+      <nav>
+        <ul>
+          <li><a href="{{ url_for('home') }}">Home</a></li>
+          <li><a href="{{ url_for('register') }}">Register</a></li>
+          <li><a href="/login">Login</a></li>
+          <li><a href="/history-page">History</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section class="search-form">
+        <h2>Search</h2>
+        <form id="search-form">
+          <label for="origin">Origin:</label><br />
+          <input type="text" id="origin" name="origin" /><br />
+          <label for="destination">Destination:</label><br />
+          <input type="text" id="destination" name="destination" /><br />
+          <label for="date">Date:</label><br />
+          <input type="date" id="date" name="date" /><br />
+          <label for="airline">Airline:</label><br />
+          <input type="text" id="airline" name="airline" /><br /><br />
+          <input type="submit" value="Search" />
+        </form>
+      </section>
+
+      <section id="map-container" style="height: 400px; width: 90%"></section>
+      <section id="search-results">
+        <!-- Search results will be displayed here -->
+      </section>
+    </main>
+
+    <script>
+      var map;
+      document
+        .getElementById("search-form")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+          const origin = document.getElementById("origin").value;
+          const destination = document.getElementById("destination").value;
+          const date = document.getElementById("date").value;
+          const airline = document.getElementById("airline").value;
+
+          // Ensure date is in the correct format if needed (already enforced by input type="date")
+          // const formattedDate = new Date(date).toISOString().split('T')[0]; // Uncomment if needed
+
+          // Remove the previous map instance if it exists
+          if (map) {
+            map.remove();
+          }
+
+          // Fetch coordinates for map display
+          const coordsResponse = await fetch("/get-coordinates", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+            body: JSON.stringify({ origin, destination }),
+          });
+
+          const coordsData = await coordsResponse.json();
+
+          if (coordsResponse.ok) {
+            // Initialize the map
+            map = L.map("map-container").setView(
+              [coordsData.origin.lat, coordsData.destination.lat],
+              6
+            );
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+              attribution:
+                'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            }).addTo(map);
+
+            // Add markers
+            L.marker([coordsData.origin.lat, coordsData.origin.lng])
+              .addTo(map)
+              .bindPopup("Origin: " + origin);
+            L.marker([coordsData.destination.lat, coordsData.destination.lng])
+              .addTo(map)
+              .bindPopup("Destination: " + destination);
+
+            // Draw a line between origin and destination
+            var polyline = L.polyline(
+              [
+                [coordsData.origin.lat, coordsData.origin.lng],
+                [coordsData.destination.lat, coordsData.destination.lng],
+              ],
+              { color: "blue" }
+            ).addTo(map);
+            map.fitBounds(polyline.getBounds());
+          } else {
+            alert("Failed to get coordinates: " + coordsData.error);
+          }
+
+          // Fetch the price prediction
+          const priceResponse = await fetch("/search", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+            body: JSON.stringify({ origin, destination, date, airline }),
+          });
+
+          const priceData = await priceResponse.json();
+
+          if (priceResponse.ok) {
+            // Display the predicted price in an H2 tag
+            const resultSection = document.getElementById("search-results");
+            resultSection.innerHTML = `<h2>Predicted Price: $${priceData.predicted_price.toFixed(
+              2
+            )}</h2>`;
+          } else {
+            alert("Failed to predict price: " + priceData.error);
+          }
+        });
+    </script>
+  </body>
+</html>
