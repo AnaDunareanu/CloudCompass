@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search History</title>
+    <link
+    rel="stylesheet"
+    type="text/css"
+    href="{{ url_for('static', filename='home.css') }}"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="{{ url_for('static', filename='auth.js') }}"></script>
+</head>
+<body>
+    <header id="navbar">
+        <nav>
+          <ul>
+            <li><a href="{{ url_for('login') }}">Login</a></li>
+            <li><a href="{{ url_for('register') }}">Register</a></li>
+            <li><a href="{{ url_for('search') }}">Search</a></li>
+            <li><a href="/home">Home</a></li>
+          </ul>
+        </nav>
+    </header>
+
+    <div class="container mt-5">
+        <h1 class="mb-4">Search History</h1>
+        <div id="search-history-container">
+            <!-- Search history will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                window.location.href = "/login";
+                return;
+            }
+
+            fetch('/history', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('search-history-container');
+                if (data.message) {
+                    container.innerHTML = `<p>${data.message}</p>`;
+                } else {
+                    const table = document.createElement('table');
+                    table.className = 'table table-striped';
+
+                    const thead = document.createElement('thead');
+                    thead.innerHTML = `
+                        <tr>
+                            <th>Origin</th>
+                            <th>Destination</th>
+                            <th>Date</th>
+                            <th>Airline</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    `;
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement('tbody');
+                    data.forEach(search => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${search.origin}</td>
+                            <td>${search.destination}</td>
+                            <td>${search.date}</td>
+                            <td>${search.airline}</td>
+                            <td>${search.timestamp}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                    table.appendChild(tbody);
+
+                    container.appendChild(table);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching search history:', error);
+                const container = document.getElementById('search-history-container');
+                container.innerHTML = '<p>Failed to load search history. Please try again later.</p>';
+            });
+        });
+    </script>
+</body>
+</html>

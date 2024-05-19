@@ -78,7 +78,6 @@ def login():
         return render_template('login.html', error=None)
     
     
-#TODO Remove me
 @app.route('/get-coordinates', methods=['POST'])
 @jwt_required()
 def get_coordinates():
@@ -109,6 +108,7 @@ def getSearchPage():
 @app.route('/search', methods=['POST'])
 @jwt_required()
 def search():
+    user_id = get_jwt_identity()
     data = request.get_json()
     origin = data.get('origin')
     destination = data.get('destination')
@@ -120,6 +120,7 @@ def search():
 
     try:
         price = search_flights(origin, destination, date, airline)
+        log_search_history(user_id, origin, destination, date, airline)
         return jsonify({'predicted_price': price}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -130,15 +131,15 @@ def search():
 @app.route('/history', methods=['GET'])
 @jwt_required()
 def search_history():
-
     user_id = get_jwt_identity()
-
     search_history = get_search_history(user_id)
+    return jsonify(search_history)
 
-    if not search_history:
-        return jsonify({'message': 'No search history found'}), 404
 
-    return jsonify(search_history), 200
+
+@app.route('/history-page', methods=['GET'])
+def search_history_page():
+    return render_template('history.html')
 
 
 if __name__ == '__main__':

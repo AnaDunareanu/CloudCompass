@@ -10,14 +10,6 @@ import python_weather
 import datetime
 import asyncio
 
-#Mock data
-flights = [
-    {'origin': 'NYC', 'destination': 'LAX', 'date': '2024-04-01', 'airline': 'Delta', 'price': 300},
-    {'origin': 'LAX', 'destination': 'NYC', 'date': '2024-04-02', 'airline': 'United', 'price': 350},
-    {'origin': 'ORD', 'destination': 'IAD', 'date': '2024-04-03', 'airline': 'Delta', 'price': 320},
-    {'origin': 'NYC', 'destination': 'LAX', 'date': '2024-04-04', 'airline': 'Delta', 'price': 320},
-    {'origin': 'ATL', 'destination': 'ABY', 'date': '2024-04-05', 'airline': 'Delta', 'price': 420},
-]
 
 recommendations = {
         'NYC': 'Try the famous pizza at Joe\'s Pizza in Manhattan.',
@@ -82,10 +74,16 @@ def log_search_history(user_id, origin, destination, date, airline):
 
 
 
+# Function to fetch search history from the database
 def get_search_history(user_id):
     search_history = search_collection.find({'user_id': user_id})
-
-    # Convert ObjectId to string representation
-    search_history_serialized = [json_util.dumps(record) for record in search_history]
+    
+    # Serialize the search history for use in the template
+    search_history_serialized = []
+    for record in search_history:
+        record['_id'] = str(record['_id'])
+        record['timestamp'] = record['timestamp'].strftime('%Y-%m-%d %H:%M:%S')
+        search_history_serialized.append(record)
+    
     return search_history_serialized
 

@@ -17,7 +17,7 @@
           <li><a href="/home">Home</a></li>
           <li><a href="/register">Register</a></li>
           <li><a href="/search">Search</a></li>
-          <li><a href="#">History</a></li>
+          <li><a href="/history-page">History</a></li>
         </ul>
       </nav>
     </header>
@@ -65,7 +65,6 @@
               .then((data) => {
                 if (data.token) {
                   localStorage.setItem("token", data.token); // Store token in local storage
-                  alert(data.message);
                   window.location.href = "/home"; // Redirect to home page
                 } else {
                   throw new Error(data.message || "Unknown error");
