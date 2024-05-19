@@ -2,9 +2,12 @@ from models.SearchLog import SearchLog
 from config.__init__ import search_collection
 from bson import json_util
 from geopy.geocoders import Nominatim
+from geopy.distance import geodesic
 from folium import Map, Marker, PolyLine, Icon
 from service.weatherService import get_weather
+from ai_model.aiModel import predict_price
 import python_weather
+import datetime
 import asyncio
 
 #Mock data
@@ -27,6 +30,16 @@ recommendations = {
 
 geolocator = Nominatim(user_agent="CloudCompass")
 
+def get_geocode(place_name):
+    try:
+        location = geolocator.geocode(place_name)
+        if location:
+            return {'lat': location.latitude, 'lng': location.longitude}
+        else:
+            return {'lat': 0, 'lng': 0}  # Return a default coordinate if location is not found
+    except Exception as e:
+        return {'error': str(e)}
+
 def get_city_from_coordinates(latitude, longitude):
     # Reverse geocode the coordinates to get location details
     location = geolocator.reverse((latitude, longitude), language='en')
@@ -43,54 +56,23 @@ def get_recommendation(destination):
 
 
 def search_flights(origin, destination, date, airline):
-    results = []
-
-    if not origin or not destination or not date or not airline:
-        return 'Origin, destination, date, and airline are required'
-
-    for flight in flights:
-        if flight['origin'] == origin and flight['destination'] == destination and flight['date'] == date and flight['airline'] == airline:
-            results.append(flight)
-
-    if not results:
-        return 'No flights found'
+    loc_origin = geolocator.geocode(f"{origin}, USA")
+    loc_destination = geolocator.geocode(f"{destination}, USA")
     
-    #Define the location of the origin and destination
-    locatie_origine = geolocator.geocode(origin + ', USA')
-    locatie_destinatie = geolocator.geocode(destination + ', USA')
-
-    orignCity = get_city_from_coordinates(locatie_origine.latitude, locatie_origine.longitude)
-    destinationCity = get_city_from_coordinates(locatie_destinatie.latitude, locatie_destinatie.longitude)
-
-    #Get the recommendation for the destination
-    recommendation = get_recommendation(destination)
-
-    # Fetch the weather forecast for both origin and destination
-    origin_forecast = asyncio.run(get_weather(orignCity))
-    destination_forecast = asyncio.run(get_weather(destinationCity))
-
-    #Create a map centered between the origin and destination
-    m = Map(location=[(locatie_origine.latitude + locatie_destinatie.latitude) / 2, (locatie_origine.longitude + locatie_destinatie.longitude) / 2], zoom_start=5)
-
-    #Add a marker for the origin
-    Marker([locatie_origine.latitude, locatie_origine.longitude], tooltip='Origin', icon=Icon(color='green')).add_to(m)
-
-    #Add a marker for the destination
-    Marker([locatie_destinatie.latitude, locatie_destinatie.longitude], tooltip='Destination', icon=Icon(color='red')).add_to(m)
-
-    #Add a line between the origin and destination
-    PolyLine([(locatie_origine.latitude, locatie_origine.longitude), (locatie_destinatie.latitude, locatie_destinatie.longitude)], color='blue').add_to(m)
-
-    #Save the map to an HTML file
-    m.save('map.html')
-
-    #Add the weather forecast to the results
-    for flight in results:
-        flight['origin_forecast'] = origin_forecast
-        flight['destination_forecast'] = destination_forecast
-        flight['recommendation'] = recommendation
-
-    return results
+    if not loc_origin or not loc_destination:
+        return "Location information could not be retrieved."
+    
+    origin_coord = (loc_origin.latitude, loc_origin.longitude)
+    destination_coord = (loc_destination.latitude, loc_destination.longitude)
+    miles = geodesic(origin_coord, destination_coord).miles
+    
+    date_obj = datetime.datetime.strptime(date, "%Y-%m-%d")
+    year = date_obj.year
+    quarter = (date_obj.month - 1) // 3 + 1
+    
+    predicted_price = predict_price(year, quarter, origin, destination, miles, 1, airline)
+    
+    return predicted_price
 
 
 

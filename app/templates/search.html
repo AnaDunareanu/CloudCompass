@@ -1,105 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Search - Cloud Compass</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="{{ url_for('home') }}">Home</a></li>
-                <li><a href="{{ url_for('register') }}">Register</a></li>
-                <li><a href="#">Search</a></li>
-                <li><a href="#">History</a></li>
-            </ul>
-        </nav>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='search.css') }}"
+    />
+    <script src="{{ url_for('static', filename='auth.js') }}"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-curve/1.4.0/leaflet.curve.min.js"></script>
+  </head>
+  <body>
+    <header id="navbar">
+      <nav>
+        <ul>
+          <li><a href="{{ url_for('home') }}">Home</a></li>
+          <li><a href="{{ url_for('register') }}">Register</a></li>
+          <li><a href="#">Search</a></li>
+          <li><a href="#">History</a></li>
+        </ul>
+      </nav>
     </header>
 
     <main>
-        <section class="search-form">
-            <h2>Search</h2>
-            <form id="search-form">
-                <label for="origin">Origin:</label><br>
-                <input type="text" id="origin" name="origin"><br>
-                <label for="destination">Destination:</label><br>
-                <input type="text" id="destination" name="destination"><br>
-                <label for="date">Date:</label><br>
-                <input type="date" id="date" name="date"><br>
-                <label for="airline">Airline:</label><br>
-                <input type="text" id="airline" name="airline"><br><br>
-                <input type="submit" value="Search">
-            </form>
-        </section>
+      <section class="search-form">
+        <h2>Search</h2>
+        <form id="search-form">
+          <label for="origin">Origin:</label><br />
+          <input type="text" id="origin" name="origin" /><br />
+          <label for="destination">Destination:</label><br />
+          <input type="text" id="destination" name="destination" /><br />
+          <label for="date">Date:</label><br />
+          <input type="date" id="date" name="date" /><br />
+          <label for="airline">Airline:</label><br />
+          <input type="text" id="airline" name="airline" /><br /><br />
+          <input type="submit" value="Search" />
+        </form>
+      </section>
 
-        <section id="search-results">
-            <!-- Search results will be displayed here -->
-        </section>
+      <section id="map-container" style="height: 400px; width: 90%"></section>
+      <section id="search-results">
+        <!-- Search results will be displayed here -->
+      </section>
     </main>
 
     <script>
-        // Function to handle search form submission
-        async function search() {
-            const origin = document.getElementById('origin').value;
-            const destination = document.getElementById('destination').value;
-            const date = document.getElementById('date').value;
-            const airline = document.getElementById('airline').value;
+      var map;
+      document
+        .getElementById("search-form")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+          const origin = document.getElementById("origin").value;
+          const destination = document.getElementById("destination").value;
+          const date = document.getElementById("date").value;
+          const airline = document.getElementById("airline").value;
 
-            // Get token from localStorage
-            const token = localStorage.getItem('token');
+          // Ensure date is in the correct format if needed (already enforced by input type="date")
+          // const formattedDate = new Date(date).toISOString().split('T')[0]; // Uncomment if needed
 
-            // Send search request to server with JWT authorization
-            const response = await fetch('/search', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ origin, destination, date, airline })
-            });
+          // Remove the previous map instance if it exists
+          if (map) {
+            map.remove();
+          }
 
-            // Parse response
-            const data = await response.json();
+          // Fetch coordinates for map display
+          const coordsResponse = await fetch("/get-coordinates", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+            body: JSON.stringify({ origin, destination }),
+          });
 
-            if (response.ok) {
-                // Display search results
-                displaySearchResults(data);
-            } else {
-                // Display error message
-                alert(data.error);
-            }
-        }
+          const coordsData = await coordsResponse.json();
 
-        // Function to display search results
-        function displaySearchResults(results) {
-            const searchResultsSection = document.getElementById('search-results');
-            searchResultsSection.innerHTML = '';
+          if (coordsResponse.ok) {
+            // Initialize the map
+            map = L.map("map-container").setView(
+              [coordsData.origin.lat, coordsData.destination.lat],
+              6
+            );
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+              attribution:
+                'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            }).addTo(map);
 
-            if (results.length === 0) {
-                searchResultsSection.innerHTML = '<p>No flights found</p>';
-            } else {
-                results.forEach(flight => {
-                    const flightInfo = document.createElement('div');
-                    flightInfo.innerHTML = `
-                        <p>Origin: ${flight.origin}</p>
-                        <p>Destination: ${flight.destination}</p>
-                        <p>Date: ${flight.date}</p>
-                        <p>Airline: ${flight.airline}</p>
-                        <p>Price: $${flight.price}</p>
-                        <!-- Add more flight details here if needed -->
-                    `;
-                    searchResultsSection.appendChild(flightInfo);
-                });
-            }
-        }
+            // Add markers
+            L.marker([coordsData.origin.lat, coordsData.origin.lng])
+              .addTo(map)
+              .bindPopup("Origin: " + origin);
+            L.marker([coordsData.destination.lat, coordsData.destination.lng])
+              .addTo(map)
+              .bindPopup("Destination: " + destination);
 
-        // Event listener for search form submission
-        document.getElementById('search-form').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission
-            search(); // Call search function
+            // Draw a line between origin and destination
+            var polyline = L.polyline(
+              [
+                [coordsData.origin.lat, coordsData.origin.lng],
+                [coordsData.destination.lat, coordsData.destination.lng],
+              ],
+              { color: "blue" }
+            ).addTo(map);
+            map.fitBounds(polyline.getBounds());
+          } else {
+            alert("Failed to get coordinates: " + coordsData.error);
+          }
+
+          // Fetch the price prediction
+          const priceResponse = await fetch("/search", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+            body: JSON.stringify({ origin, destination, date, airline }),
+          });
+
+          const priceData = await priceResponse.json();
+
+          if (priceResponse.ok) {
+            // Display the predicted price in an H2 tag
+            const resultSection = document.getElementById("search-results");
+            resultSection.innerHTML = `<h2>Predicted Price: $${priceData.predicted_price.toFixed(
+              2
+            )}</h2>`;
+          } else {
+            alert("Failed to predict price: " + priceData.error);
+          }
         });
     </script>
-</body>
+  </body>
 </html>

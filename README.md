@@ -12,3 +12,9 @@ Desired features:
 - Local Recommendations: Discover recommendations for activities, restaurants, and hotels at your destination.
 
 (i hope that i will have time to implement all of them but this is how i would like it)
+
+
+
+Web Application Diagram
+
+![CloudCompassDiagram](https://github.com/AnaDunareanu/CloudCompass/assets/101567953/c849a7cf-3a1a-48be-9090-eb976cc67f02)

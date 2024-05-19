@@ -1,11 +1,14 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for
 from service.userService import register_user, login_user
-from service.searchService import search_flights, log_search_history, get_search_history
+from service.searchService import search_flights, log_search_history, get_search_history, get_geocode
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
 from flask_cors import CORS
+from geopy.geocoders import Nominatim
+
 
 
 app = Flask(__name__)
+geolocator = Nominatim(user_agent="CloudCompass")
 app.config['JWT_SECRET_KEY'] = '6861756d696175'
 jwt = JWTManager(app)
 CORS(app)
@@ -45,7 +48,7 @@ def register():
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('login.html', error=None)
+    return render_template('homePage.html', error=None)
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -75,25 +78,51 @@ def login():
         return render_template('login.html', error=None)
     
     
+#TODO Remove me
+@app.route('/get-coordinates', methods=['POST'])
+@jwt_required()
+def get_coordinates():
+    data = request.get_json()
+    origin_name = data.get('origin')
+    destination_name = data.get('destination')
 
-@app.route('/search', methods=['GET','POST'])
+    # Get coordinates for the origin and destination using the helper function
+    origin_coords = get_geocode(origin_name)
+    destination_coords = get_geocode(destination_name)
+
+    # Check if there was an error in geocoding and handle it
+    if 'error' in origin_coords or 'error' in destination_coords:
+        error_message = origin_coords.get('error') or destination_coords.get('error')
+        return jsonify({'error': error_message}), 500
+
+    response = {
+        'origin': origin_coords,
+        'destination': destination_coords
+    }
+    return jsonify(response)
+
+
+@app.route('/search', methods=['GET'])
+def getSearchPage():
+    return render_template('search.html', error=None)
+
+@app.route('/search', methods=['POST'])
 @jwt_required()
 def search():
-    origin = request.json.get('origin')
-    destination = request.json.get('destination') 
-    date = request.json.get('date') 
-    airline = request.json.get('airline')
+    data = request.get_json()
+    origin = data.get('origin')
+    destination = data.get('destination')
+    date = data.get('date')
+    airline = data.get('airline')
 
-    user_id = get_jwt_identity()
+    if not origin or not destination or not date or not airline:
+        return jsonify({'error': 'Missing data, please provide origin, destination, date, and airline'}), 400
 
-    result = search_flights(origin, destination, date, airline)
-
-    log_search_history(user_id, origin, destination, date, airline)
-
-    if isinstance(result, str):
-        return jsonify({'error': result}), 400
-    else:
-        return jsonify(result), 200
+    try:
+        price = search_flights(origin, destination, date, airline)
+        return jsonify({'predicted_price': price}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 

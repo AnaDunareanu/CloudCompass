@@ -1,32 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Home - Cloud Compass</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='home.css') }}">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='home.css') }}"
+    />
+  </head>
+  <body>
     <header id="navbar">
-        <nav>
-            <ul>
-                <li><a href="{{ url_for('login') }}">Login</a></li>
-                <li><a href="{{ url_for('register') }}">Register</a></li>
-                <li><a href="{{ url_for('search') }}">Search</a></li>
-                <li><a href="#">History</a></li>
-            </ul>
-        </nav>
+      <nav>
+        <ul>
+          <li><a href="{{ url_for('login') }}">Login</a></li>
+          <li><a href="{{ url_for('register') }}">Register</a></li>
+          <li><a href="{{ url_for('search') }}">Search</a></li>
+          <li><a href="#">History</a></li>
+        </ul>
+      </nav>
     </header>
 
     <main>
-    <script>console.log("Am ajuns")</script>
-        <section class="welcome">
-            <h1>Welcome to Cloud Compass</h1>
-            <p>Your ultimate destination for flight search and history tracking.</p>
-        </section>
+      <script>
+        console.log("Am ajuns");
+      </script>
+      <section class="welcome">
+        <h1>Welcome to Cloud Compass</h1>
+        <p>Your ultimate destination for flight search and history tracking.</p>
+      </section>
     </main>
-
-
-    
-</body>
+  </body>
 </html>

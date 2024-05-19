@@ -1,0 +1,131 @@
+/* Sticky navbar */
+#navbar {
+  position: sticky;
+  top: 0;
+  background-color: #333;
+  z-index: 1000;
+}
+
+/* Navbar styles */
+#navbar nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 10px;
+}
+
+#navbar nav ul li {
+  display: inline;
+  margin-right: 20px;
+}
+
+#navbar nav ul li a {
+  color: #fff;
+  text-decoration: none;
+}
+
+#navbar nav ul li a:hover {
+  text-decoration: underline;
+}
+
+/* Main content styles */
+main {
+  padding-top: 50px;
+  display: flex;
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  flex-direction: column; /* Stack elements vertically */
+}
+
+.search-form {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.search-form form {
+  display: block;
+  width: 100%;
+  max-width: 500px; /* Set a maximum width */
+  text-align: left;
+  padding: 30px; /* Increase padding for better spacing */
+  border: 1px solid #ccc;
+  border-radius: 10px; /* Increase border radius for a softer look */
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+}
+
+.search-form label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold; /* Make labels bold for better readability */
+}
+
+.search-form input[type="text"],
+.search-form input[type="date"] {
+  width: calc(100% - 20px); /* Adjust width to fit padding */
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px; /* Adjust border radius */
+}
+
+.search-form input[type="submit"] {
+  width: 100%;
+  padding: 12px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px; /* Increase font size */
+  transition: background-color 0.3s; /* Add transition for hover effect */
+}
+
+.search-form input[type="submit"]:hover {
+  background-color: #555;
+}
+
+/* Search results styles */
+#search-results {
+  margin-top: 40px;
+  width: 100%; /* Responsive width */
+  text-align: left;
+}
+
+#search-results div {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin: 10px auto;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+}
+
+#search-results p {
+  margin: 8px 0;
+}
+
+#map-container {
+  width: 100%; /* Full container width */
+  height: 400px; /* Set a fixed height or make it responsive */
+  margin-top: 50px; /* Spacing from the form */
+}
+
+/* Improved styles for responsive design */
+@media (max-width: 768px) {
+  .search-form form {
+    width: 90%;
+    max-width: none; /* Allow form to be more fluid on small screens */
+  }
+}
+
+#search-results h2 {
+  text-align: center; /* Center align text */
+  font-weight: bold; /* Make the text bold */
+  color: #333; /* Set text color */
+  margin-top: 20px; /* Add margin to the top */
+  margin-bottom: 200px;
+  padding: 10px 0; /* Padding above and below for better spacing */
+  background-color: #f4f4f4; /* Light background for emphasis */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
