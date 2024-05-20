@@ -1,26 +1,46 @@
 /* Sticky navbar */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Sticky navbar */
 #navbar {
   position: sticky;
   top: 0;
-  background-color: #333;
+  background-color: #000;
   z-index: 1000;
+  width: 100%;
+  padding: 0;
 }
 
 /* Navbar styles */
 #navbar nav ul {
   list-style-type: none;
   margin: 0;
-  padding: 10px;
+  padding: 10px; /* Reduced padding */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 #navbar nav ul li {
-  display: inline;
-  margin-right: 20px;
+  margin-right: 10px; /* Reduced margin */
+}
+
+#navbar nav ul li.logo {
+  margin-right: auto;
+}
+
+#navbar nav ul li.logo img {
+  max-width: 150px; /* Adjust the size of the logo */
 }
 
 #navbar nav ul li a {
   color: #fff;
   text-decoration: none;
+  font-size: 14px; /* Reduced font size */
+  padding: 5px; /* Added padding for better click area */
 }
 
 #navbar nav ul li a:hover {
@@ -31,46 +51,71 @@
 main {
   padding-top: 50px;
   display: flex;
-  justify-content: center; /* Center content horizontally */
-  align-items: center; /* Center content vertically */
-  flex-direction: column; /* Stack elements vertically */
+  flex-direction: column;
+  align-items: center;
+}
+
+.intro {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.intro h1 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.intro p {
+  font-size: 16px;
+  margin: 0;
 }
 
 .search-form {
   text-align: center;
-  margin-top: 50px;
+  margin-top: 20px;
+  width: 100%; /* Full width */
+  display: flex;
+  justify-content: center; /* Center content horizontally */
 }
 
 .search-form form {
-  display: block;
-  width: 100%;
-  max-width: 500px; /* Set a maximum width */
-  text-align: left;
-  padding: 30px; /* Increase padding for better spacing */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 90%; /* Full width minus margins */
+  max-width: 1000px; /* Set a maximum width */
+  background-color: #f9f9f9;
+  padding: 15px;
   border: 1px solid #ccc;
   border-radius: 10px; /* Increase border radius for a softer look */
-  background-color: #f9f9f9;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
 }
 
+.search-form .form-group {
+  display: flex;
+  flex-direction: column;
+  margin: 0 10px;
+}
+
 .search-form label {
-  display: block;
-  margin-bottom: 10px;
   font-weight: bold; /* Make labels bold for better readability */
 }
 
 .search-form input[type="text"],
 .search-form input[type="date"] {
-  width: calc(100% - 20px); /* Adjust width to fit padding */
   padding: 10px;
-  margin-bottom: 15px;
+  margin-top: 5px;
   border: 1px solid #ccc;
   border-radius: 5px; /* Adjust border radius */
+  min-width: 150px; /* Set a minimum width */
+}
+
+.search-form input[type="date"] {
+  min-width: 150px; /* Ensure the date input is wide enough */
 }
 
 .search-form input[type="submit"] {
-  width: 100%;
-  padding: 12px;
+  padding: 10px 20px; /* Adjust padding for better size */
   background-color: #333;
   color: white;
   border: none;
@@ -78,6 +123,7 @@ main {
   cursor: pointer;
   font-size: 16px; /* Increase font size */
   transition: background-color 0.3s; /* Add transition for hover effect */
+  margin-left: 10px; /* Add margin to separate from other inputs */
 }
 
 .search-form input[type="submit"]:hover {
@@ -86,7 +132,7 @@ main {
 
 /* Search results styles */
 #search-results {
-  margin-top: 40px;
+  margin-top: 20px;
   width: 100%; /* Responsive width */
   text-align: left;
 }
@@ -105,16 +151,32 @@ main {
 }
 
 #map-container {
-  width: 100%; /* Full container width */
+  width: 90%; /* Full container width */
   height: 400px; /* Set a fixed height or make it responsive */
-  margin-top: 50px; /* Spacing from the form */
+  margin-top: 20px; /* Spacing from the form */
 }
 
 /* Improved styles for responsive design */
 @media (max-width: 768px) {
   .search-form form {
+    flex-direction: column; /* Stack elements vertically on small screens */
     width: 90%;
     max-width: none; /* Allow form to be more fluid on small screens */
+  }
+
+  .search-form .form-group {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .search-form label,
+  .search-form input {
+    width: 100%;
+  }
+
+  .search-form input[type="submit"] {
+    width: 100%;
+    padding: 12px;
   }
 }
 

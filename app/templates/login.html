@@ -12,8 +12,9 @@
   </head>
   <body>
     <header>
-      <nav>
+      <nav id="navbar">
         <ul>
+          <li class="logo"><img src="{{ url_for('static', filename='logo.png') }}" alt="Cloud Compass Logo"></li>
           <li><a href="/home">Home</a></li>
           <li><a href="/register">Register</a></li>
           <li><a href="/search">Search</a></li>
@@ -65,7 +66,7 @@
               .then((data) => {
                 if (data.token) {
                   localStorage.setItem("token", data.token); // Store token in local storage
-                  window.location.href = "/home"; // Redirect to home page
+                  window.location.href = "/search"; // Redirect to home page
                 } else {
                   throw new Error(data.message || "Unknown error");
                 }

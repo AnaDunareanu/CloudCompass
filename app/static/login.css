@@ -1,43 +1,72 @@
-/* Navbar styles */
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 10px;
+/* Reset and basic styles */
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif; /* Added font family */
 }
 
-nav ul {
-    list-style-type: none;
-    margin: 0;
+/* Sticky navbar */
+#navbar {
+    position: sticky;
+    top: 0;
+    background-color: #000;
+    z-index: 1000;
+    width: 100%;
     padding: 0;
 }
 
-nav ul li {
-    display: inline;
-    margin-right: 20px;
+/* Navbar styles */
+#navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
-nav ul li a {
+#navbar ul li {
+    margin-right: 10px;
+}
+
+#navbar ul li.logo {
+    margin-right: auto;
+}
+
+#navbar ul li.logo img {
+    max-width: 150px;
+}
+
+#navbar ul li a {
     color: #fff;
     text-decoration: none;
+    font-size: 14px;
+    padding: 5px;
 }
 
-nav ul li a:hover {
+#navbar ul li a:hover {
     text-decoration: underline;
 }
 
 /* Main content styles */
 main {
-    margin: 20px; /* Add margin for spacing */
+    margin: 20px;
     padding: 20px;
-    border: 1px solid #ccc; /* Add border for visual separation */
+    border: 1px solid #ccc;
+    max-width: 600px; /* Added max-width for better layout */
+    margin: 20px auto; /* Center aligned */
+    background-color: #f9f9f9; /* Added background color */
+    border-radius: 5px; /* Added border radius */
 }
 
 h1 {
     color: #333;
+    text-align: center; /* Center aligned */
 }
 
 p {
     color: #666;
+    text-align: center; /* Center aligned */
 }
 
 /* Login form styles */
@@ -57,6 +86,7 @@ input[type="password"] {
     padding: 8px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
+    border-radius: 4px; /* Added border radius */
 }
 
 input[type="submit"] {
@@ -65,6 +95,7 @@ input[type="submit"] {
     background-color: #333;
     color: #fff;
     border: none;
+    border-radius: 4px; /* Added border radius */
     cursor: pointer;
 }
 
