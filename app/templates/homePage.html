@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -14,19 +15,25 @@
     <header id="navbar">
       <nav>
         <ul>
-          <li><a href="{{ url_for('login') }}">Login</a></li>
-          <li><a href="{{ url_for('register') }}">Register</a></li>
-          <li><a href="{{ url_for('search') }}">Search</a></li>
-          <li><a href="/history-page">History</a></li>
+          <li class="logo"><img src="{{ url_for('static', filename='logo.png') }}" alt="Cloud Compass Logo"></li>
         </ul>
       </nav>
     </header>
 
     <main>
       <section class="welcome">
-        <h1>Welcome to Cloud Compass</h1>
+        <h1>Welcome to <span class="highlight">CLOUD COMPASS</span></h1>
         <p>Your ultimate destination for flight search and history tracking.</p>
+        <div class="buttons">
+          <a href="{{ url_for('login') }}" class="button login">
+            <img src="{{ url_for('static', filename='user.png') }}" alt="Login Logo"> LOGIN
+          </a>
+          <a href="{{ url_for('register') }}" class="button register">
+            <img src="{{ url_for('static', filename='register.png') }}" alt="Register Logo"> REGISTER
+          </a>
+        </div>
       </section>
     </main>
   </body>
 </html>
+

@@ -15,6 +15,7 @@
     <header id="navbar">
         <nav>
           <ul>
+            <li class="logo"><img src="{{ url_for('static', filename='logo.png') }}" alt="Cloud Compass Logo"></li>
             <li><a href="{{ url_for('login') }}">Login</a></li>
             <li><a href="{{ url_for('register') }}">Register</a></li>
             <li><a href="{{ url_for('search') }}">Search</a></li>
