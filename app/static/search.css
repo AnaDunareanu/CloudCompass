@@ -133,27 +133,42 @@ main {
 /* Search results styles */
 #search-results {
   margin-top: 20px;
-  width: 100%; /* Responsive width */
+  width: 90%; /* Responsive width */
   text-align: left;
-}
-
-#search-results div {
-  border: 1px solid #ccc;
-  padding: 15px;
-  margin: 10px auto;
-  background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
-}
-
-#search-results p {
-  margin: 8px 0;
+  height: 60px;
+  /* margin-bottom: 20px; */
 }
 
 #map-container {
   width: 90%; /* Full container width */
   height: 400px; /* Set a fixed height or make it responsive */
-  margin-top: 20px; /* Spacing from the form */
+  margin-top: 50px; /* Spacing from the form */
+}
+
+/* Recommendations section styles */
+#recommendations {
+  margin-top: 20px;
+  width: 90%; /* Responsive width */
+  text-align: center;
+  height: 100px;
+  margin-bottom: 120px; /* Add margin to the bottom */
+}
+
+#recommendations h2 {
+  font-size: 20px; /* Adjust font size */
+  margin-bottom: 10px; /* Add margin below heading */
+  color: #333; /* Set text color */
+}
+
+#recommendations div {
+  background-color: #f4f4f4; /* Light background for emphasis */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#recommendations p {
+  font-size: 16px; /* Adjust font size */
+  margin: 5px 0; /* Add margin */
 }
 
 /* Improved styles for responsive design */

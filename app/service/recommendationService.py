@@ -8,7 +8,3 @@ def get_recommendation(destination):
     
     return recommendations.get(destination, 'No recommendation available for this destination.')
 
-
-destination = 'NYC'
-recommendation = get_recommendation(destination)
-print(recommendation)

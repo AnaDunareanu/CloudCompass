@@ -60,6 +60,9 @@
       <section id="search-results">
         <!-- Search results will be displayed here -->
       </section>
+      <section id ="recommendations">
+        <!-- Recommendations will be displayed here --> 
+      </section>
     </main>
 
     <script>
@@ -150,7 +153,30 @@
           } else {
             alert("Failed to predict price: " + priceData.error);
           }
+
+          // Fetch recommendations
+          const recommendationResponse = await fetch("/get-recommendation", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+            body: JSON.stringify({ destination }),
+          });
+
+          const recommendationData = await recommendationResponse.json();
+
+          if (recommendationResponse.ok) {
+            // Display the recommendation
+            const recommendationsSection = document.getElementById("recommendations");
+            recommendationsSection.innerHTML = `<div><h2>Recommendations for ${destination}</h2><p>${recommendationData.recommendation}</p></div>`;
+          } else {
+            alert("Failed to fetch recommendations: " + recommendationData.error);
+          }
+
         });
+
+        
     </script>
   </body>
 </html>
