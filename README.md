@@ -7,7 +7,7 @@ Desired features:
 - Authentication: Secure access to personalized travel insights and features.
 - Search Functionality: Effortlessly find flights by specifying origin, destination, date, and airline company, with forecasted prices for the selected period.
 - Search History: Keep track of past searches for convenient reference and planning.
-- Interactive Route Map: Visualize flight routes using Google Maps integration.
+- Interactive Route Map: Visualize flight routes on an interactive map.
 - Local Recommendations: Discover recommendations for activities/restaurants at your destination.
 
 
