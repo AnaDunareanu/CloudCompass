@@ -8,10 +8,7 @@ Desired features:
 - Search Functionality: Effortlessly find flights by specifying origin, destination, date, and airline company, with forecasted prices for the selected period.
 - Search History: Keep track of past searches for convenient reference and planning.
 - Interactive Route Map: Visualize flight routes using Google Maps integration.
-- Destination Weather: Access real-time weather information for your destination.
-- Local Recommendations: Discover recommendations for activities, restaurants, and hotels at your destination.
-
-(i hope that i will have time to implement all of them but this is how i would like it)
+- Local Recommendations: Discover recommendations for activities/restaurants at your destination.
 
 
 
