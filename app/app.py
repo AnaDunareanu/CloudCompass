@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for
 from service.userService import register_user, login_user
-from service.searchService import search_flights, log_search_history, get_search_history, get_geocode
+from service.searchService import search_flights, log_search_history, get_search_history, get_geocode, get_recommendation
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
 from flask_cors import CORS
 from geopy.geocoders import Nominatim
@@ -99,6 +99,15 @@ def get_coordinates():
         'destination': destination_coords
     }
     return jsonify(response)
+
+
+@app.route('/get-recommendation', methods=['POST'])
+@jwt_required()
+def recommendation():
+    data = request.json
+    destination = data.get('destination')
+    recommendation = get_recommendation(destination)
+    return jsonify({'recommendation': recommendation})
 
 
 @app.route('/search', methods=['GET'])
