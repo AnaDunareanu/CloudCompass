@@ -4,7 +4,8 @@ from service.searchService import search_flights, log_search_history, get_search
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
 from flask_cors import CORS
 from geopy.geocoders import Nominatim
-
+import pandas as pd
+import datetime
 
 
 app = Flask(__name__)
@@ -128,8 +129,14 @@ def search():
         return jsonify({'error': 'Missing data, please provide origin, destination, date, and airline'}), 400
 
     try:
-        price = search_flights(origin, destination, date, airline)
-        log_search_history(user_id, origin, destination, date, airline)
+                # Convert date to datetime object if it's a string
+        if isinstance(date, str):
+            date_obj = datetime.datetime.strptime(date, "%Y-%m-%d")
+        else:
+            date_obj = date
+        price = search_flights(origin, destination, date_obj, airline)  # Pass date object
+        log_search_history(user_id, origin, destination, date_obj, airline)
+        price = float(price)
         return jsonify({'predicted_price': price}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -152,4 +159,4 @@ def search_history_page():
 
 
 if __name__ == '__main__':
-    app.run(port=8000, debug=True)
+    app.run(port=8001, debug=True)

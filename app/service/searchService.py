@@ -58,11 +58,15 @@ def search_flights(origin, destination, date, airline):
     destination_coord = (loc_destination.latitude, loc_destination.longitude)
     miles = geodesic(origin_coord, destination_coord).miles
     
-    date_obj = datetime.datetime.strptime(date, "%Y-%m-%d")
+    if isinstance(date, str):
+        date_obj = datetime.datetime.strptime(date, "%Y-%m-%d")
+    else:
+        date_obj = date
+        
     year = date_obj.year
     quarter = (date_obj.month - 1) // 3 + 1
     
-    predicted_price = predict_price(year, quarter, origin, destination, miles, 1, airline)
+    predicted_price = predict_price(year, quarter, origin, destination, miles, 1, airline, date_obj)
     
     return predicted_price
 
