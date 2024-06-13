@@ -13,6 +13,9 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-curve/1.4.0/leaflet.curve.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
   </head>
   <body>
     <header id="navbar">
@@ -56,7 +59,7 @@
         </form>
       </section>
 
-      <section id="map-container" style="height: 400px; width: 90%"></section>
+      <section id="map-container" style="height: 400px; width: 90%; margin: 20px auto; border: 1px solid #ccc;"></section>
       <section id="search-results">
         <!-- Search results will be displayed here -->
       </section>
@@ -64,6 +67,7 @@
         <!-- Recommendations will be displayed here --> 
       </section>
     </main>
+
 
     <script>
       var map;
@@ -82,101 +86,181 @@
         initializeMap();
       });
 
-      document
-        .getElementById("search-form")
-        .addEventListener("submit", async function (event) {
-          event.preventDefault();
-          const origin = document.getElementById("origin").value;
-          const destination = document.getElementById("destination").value;
-          const date = document.getElementById("date").value;
-          const airline = document.getElementById("airline").value;
+            // Function to update autocomplete source
+            function updateAutocomplete(inputId, data) {
+                $("#" + inputId).autocomplete({
+                    source: data.map(item => ({
+                        label: item.name + " (" + item.code + ")",
+                        value: item.code
+                    }))
+                });
+            }
 
-          // Fetch coordinates for map display
-          const coordsResponse = await fetch("/get-coordinates", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + localStorage.getItem("token"),
-            },
-            body: JSON.stringify({ origin, destination }),
-          });
-
-          const coordsData = await coordsResponse.json();
-
-          if (coordsResponse.ok) {
-            // Clear existing layers
-            map.eachLayer(function (layer) {
-              if (layer instanceof L.Marker || layer instanceof L.Polyline) {
-                map.removeLayer(layer);
-              }
+            // Fetch unique values for origin
+            $.ajax({
+                url: '/unique-values',
+                method: 'GET',
+                headers: { Authorization: "Bearer " + localStorage.getItem("token") },
+                success: function(data) {
+                    updateAutocomplete('origin', data.origins);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Failed to fetch unique values:', status, error);
+                }
             });
 
-            // Add markers
-            L.marker([coordsData.origin.lat, coordsData.origin.lng])
-              .addTo(map)
-              .bindPopup("Origin: " + origin);
-            L.marker([coordsData.destination.lat, coordsData.destination.lng])
-              .addTo(map)
-              .bindPopup("Destination: " + destination);
+            // Update destinations based on selected origin
+            $("#origin").on('autocompletechange autocompleteselect', function(event, ui) {
+                let originCode = ui.item ? ui.item.value : this.value;
+                $('#destination').prop('disabled', false).val('');
+                $('#airline').prop('disabled', true).val('');
+                
+                $.ajax({
+                    url: '/get-destinations',
+                    method: 'GET',
+                    headers: { Authorization: "Bearer " + localStorage.getItem("token") },
+                    data: { origin: originCode },
+                    success: function(data) {
+                        updateAutocomplete('destination', data);
+                    }
+                });
+            });
 
-            // Draw a line between origin and destination
-            var polyline = L.polyline(
-              [
-                [coordsData.origin.lat, coordsData.origin.lng],
-                [coordsData.destination.lat, coordsData.destination.lng],
-              ],
-              { color: "blue" }
-            ).addTo(map);
-            map.fitBounds(polyline.getBounds());
-          } else {
-            alert("Failed to get coordinates: " + coordsData.error);
-          }
+            // Update airlines based on selected origin and destination
+            $("#destination").on('autocompletechange autocompleteselect', function(event, ui) {
+                let originCode = $('#origin').val();
+                let destinationCode = ui.item ? ui.item.value : this.value;
+                $('#airline').prop('disabled', false).val('');
+                
+                $.ajax({
+                    url: '/get-airlines',
+                    method: 'GET',
+                    headers: { Authorization: "Bearer " + localStorage.getItem("token") },
+                    data: {
+                        origin: originCode,
+                        destination: destinationCode
+                    },
+                    success: function(data) {
+                        updateAutocomplete('airline', data);
+                    }
+                });
+            });
 
-          // Fetch the price prediction
-          const priceResponse = await fetch("/search", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + localStorage.getItem("token"),
-            },
-            body: JSON.stringify({ origin, destination, date, airline }),
-          });
+            // Handle form submission
+            $("#search-form").submit(function(event) {
+                event.preventDefault();
 
-          const priceData = await priceResponse.json();
+                let originCode = $('#origin').val();
+                let destinationCode = $('#destination').val();
+                let airlineCode = $('#airline').val();
+                let date = $('#date').val();
 
-          if (priceResponse.ok) {
-            // Display the predicted price in an H2 tag
-            const resultSection = document.getElementById("search-results");
-            resultSection.innerHTML = `<h2>Predicted Price: $${priceData.predicted_price.toFixed(
-              2
-            )}</h2>`;
-          } else {
-            alert("Failed to predict price: " + priceData.error);
-          }
+                // Validate the route
+                $.ajax({
+                    url: '/validate-route',
+                    method: 'GET',
+                    data: {
+                        origin: originCode,
+                        destination: destinationCode,
+                        airline: airlineCode
+                    },
+                    success: function(response) {
+                        // Route is valid, proceed to fetch price prediction and map coordinates
+                        fetchPricePrediction(originCode, destinationCode, airlineCode, date);
+                        fetchCoordinatesAndRecommendations(originCode, destinationCode);
+                    },
+                    error: function(response) {
+                        // Display error message
+                        alert('Airline company does not support this route');
+                    }
+                });
+            });
 
-          // Fetch recommendations
-          const recommendationResponse = await fetch("/get-recommendation", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + localStorage.getItem("token"),
-            },
-            body: JSON.stringify({ destination }),
-          });
+            function fetchPricePrediction(originCode, destinationCode, airlineCode, date) {
+                $.ajax({
+                    url: '/search',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        Authorization: "Bearer " + localStorage.getItem("token")
+                    },
+                    data: JSON.stringify({
+                        origin: originCode,
+                        destination: destinationCode,
+                        airline: airlineCode,
+                        date: date
+                    }),
+                    success: function(response) {
+                        const resultSection = document.getElementById("search-results");
+                        resultSection.innerHTML = `<h2>Predicted Price: $${response.predicted_price.toFixed(2)}</h2>`;
+                    },
+                    error: function(response) {
+                        alert('Failed to predict price: ' + response.responseJSON.error);
+                    }
+                });
+            }
 
-          const recommendationData = await recommendationResponse.json();
+            function fetchCoordinatesAndRecommendations(originCode, destinationCode) {
+                // Fetch coordinates for map display
+                $.ajax({
+                    url: "/get-coordinates",
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: "Bearer " + localStorage.getItem("token")
+                    },
+                    data: JSON.stringify({ origin: originCode, destination: destinationCode }),
+                    success: function(coordsData) {
+                        if (map) {
+                            // Clear existing layers
+                            map.eachLayer(function (layer) {
+                                if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+                                    map.removeLayer(layer);
+                                }
+                            });
 
-          if (recommendationResponse.ok) {
-            // Display the recommendation
-            const recommendationsSection = document.getElementById("recommendations");
-            recommendationsSection.innerHTML = `<div><h2>Recommendations for ${destination}</h2><p>${recommendationData.recommendation}</p></div>`;
-          } else {
-            alert("Failed to fetch recommendations: " + recommendationData.error);
-          }
+                            // Add markers
+                            L.marker([coordsData.origin.lat, coordsData.origin.lng])
+                                .addTo(map)
+                                .bindPopup("Origin: " + originCode);
+                            L.marker([coordsData.destination.lat, coordsData.destination.lng])
+                                .addTo(map)
+                                .bindPopup("Destination: " + destinationCode);
 
-        });
+                            // Draw a line between origin and destination
+                            var polyline = L.polyline(
+                                [
+                                    [coordsData.origin.lat, coordsData.origin.lng],
+                                    [coordsData.destination.lat, coordsData.destination.lng]
+                                ],
+                                { color: "blue" }
+                            ).addTo(map);
+                            map.fitBounds(polyline.getBounds());
+                        }
+                    },
+                    error: function(response) {
+                        alert("Failed to get coordinates: " + response.responseJSON.error);
+                    }
+                });
 
-        
+                // Fetch recommendations
+                $.ajax({
+                    url: "/get-recommendation",
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: "Bearer " + localStorage.getItem("token")
+                    },
+                    data: JSON.stringify({ destination: destinationCode }),
+                    success: function(recommendationData) {
+                        const recommendationsSection = document.getElementById("recommendations");
+                        recommendationsSection.innerHTML = `<div><h2>Recommendations for ${destinationCode}</h2><p>${recommendationData.recommendation}</p></div>`;
+                    },
+                    error: function(response) {
+                        alert("Failed to fetch recommendations: " + response.responseJSON.error);
+                    }
+                });
+            }
     </script>
   </body>
 </html>

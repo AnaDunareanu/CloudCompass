@@ -6,6 +6,7 @@ from flask_cors import CORS
 from geopy.geocoders import Nominatim
 import pandas as pd
 import datetime
+from service.mapperService import airport_mapping, airline_mapping
 
 
 app = Flask(__name__)
@@ -13,6 +14,8 @@ geolocator = Nominatim(user_agent="CloudCompass")
 app.config['JWT_SECRET_KEY'] = '6861756d696175'
 jwt = JWTManager(app)
 CORS(app)
+
+flights = pd.read_csv('flightsCleaned.csv')
 
 
 @app.route('/home')
@@ -109,6 +112,59 @@ def recommendation():
     destination = data.get('destination')
     recommendation = get_recommendation(destination)
     return jsonify({'recommendation': recommendation})
+
+
+@app.route('/validate-route', methods=['GET'])
+def validate_route():
+    origin = request.args.get('origin')
+    destination = request.args.get('destination')
+    airline = request.args.get('airline')
+
+    if origin and destination and airline:
+        is_valid_route = not flights[(flights['Origin'] == origin) & (flights['Dest'] == destination) & (flights['AirlineCompany'] == airline)].empty
+        print("Validation result:", is_valid_route)
+        if not is_valid_route:
+            return jsonify({'error': 'Airline company does not support this route'}), 400
+        return jsonify({'message': 'Valid route'}), 200
+
+    return jsonify({'error': 'Missing data, please provide origin, destination, and airline'}), 400
+@app.route('/unique-values', methods=['GET'])
+@jwt_required()
+def get_unique_values():
+    origins = flights['Origin'].unique()
+    destinations = flights['Dest'].unique()
+    airlines = flights['AirlineCompany'].unique()
+
+    origins_mapped = [{"code": code, "name": airport_mapping.get(code, code)} for code in origins]
+    destinations_mapped = [{"code": code, "name": airport_mapping.get(code, code)} for code in destinations]
+    airlines_mapped = [{"code": code, "name": airline_mapping.get(code, code)} for code in airlines]
+
+    return jsonify({
+        'origins': origins_mapped,
+        'destinations': destinations_mapped,
+        'airlines': airlines_mapped
+    })
+
+@app.route('/get-destinations', methods=['GET'])
+@jwt_required()
+def get_destinations():
+    origin = request.args.get('origin')
+    if origin:
+        destination_codes = flights[flights['Origin'] == origin]['Dest'].unique().tolist()
+        destinations = [{"code": code, "name": airport_mapping.get(code, code)} for code in destination_codes]
+        return jsonify(destinations)
+    return jsonify([])
+
+@app.route('/get-airlines', methods=['GET'])
+@jwt_required()
+def get_airlines():
+    origin = request.args.get('origin')
+    destination = request.args.get('destination')
+    if origin and destination:
+        airlines = flights[(flights['Origin'] == origin) & (flights['Dest'] == destination)]['AirlineCompany'].unique().tolist()
+        airlines = [{"code": code, "name": airline_mapping.get(code, code)} for code in airlines]
+        return jsonify(airlines)
+    return jsonify([])
 
 
 @app.route('/search', methods=['GET'])

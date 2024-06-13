@@ -9,13 +9,14 @@ from ai_model.aiModel import predict_price
 import python_weather
 import datetime
 import asyncio
+from service.mapperService import airport_mapping, airline_mapping
 
 
 recommendations = {
         'JFK': 'Try the famous pizza at Joe\'s Pizza in Manhattan.',
         'LAX': 'Visit the iconic Hollywood Walk of Fame.',
         'ORD': 'Explore Millennium Park and see the Cloud Gate sculpture in Chicago.',
-        'ATL': 'Experience the Georgia Aquarium, one of the largest in the world.'
+        'ATL': 'Experience the Georgia Aquarium, one of the largest in the world.',
     }
 
 
@@ -73,7 +74,9 @@ def search_flights(origin, destination, date, airline):
 
 
 def log_search_history(user_id, origin, destination, date, airline):
-    search_entry = SearchLog(user_id, origin, destination, date, airline)
+    price = search_flights(origin, destination, date, airline)
+    good_price = float(price)
+    search_entry = SearchLog(user_id, origin, destination, date, airline, good_price)
     SearchLog.save(search_entry)
 
 
