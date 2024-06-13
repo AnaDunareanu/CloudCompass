@@ -206,3 +206,7 @@ main {
   border-radius: 8px; /* Rounded corners */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
+
+.ui-autocomplete {
+  z-index: 900 !important; /* Use a high z-index value */
+}
