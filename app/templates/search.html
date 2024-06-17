@@ -62,6 +62,8 @@
       <section id="map-container" style="height: 400px; width: 90%; margin: 20px auto; border: 1px solid #ccc;"></section>
       <section id="search-results">
         <!-- Search results will be displayed here -->
+        <div id="loading-spinner" class="spinner" style="display:none;"></div>
+        <div id="loading-message" style="display:none;">Loading the predicted price...</div>
       </section>
       <section id ="recommendations">
         <!-- Recommendations will be displayed here --> 
@@ -177,6 +179,12 @@
             });
 
             function fetchPricePrediction(originCode, destinationCode, airlineCode, date) {
+                // Clear and reset the search-results section
+                const resultSection = document.getElementById("search-results");
+                resultSection.innerHTML = `<div id="loading-spinner" class="spinner" style="display:none;"></div>
+                                           <div id="loading-message" style="display:none;">Loading the predicted price...</div>`;
+                $("#loading-spinner").show(); 
+                $("#loading-message").show(); 
                 $.ajax({
                     url: '/search',
                     method: 'POST',
@@ -196,6 +204,10 @@
                     },
                     error: function(response) {
                         alert('Failed to predict price: ' + response.responseJSON.error);
+                    },
+                    complete: function() {
+                        $("#loading-spinner").hide();
+                        $("#loading-message").hide();  
                     }
                 });
             }

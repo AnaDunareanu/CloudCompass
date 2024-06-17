@@ -128,6 +128,8 @@ def validate_route():
         return jsonify({'message': 'Valid route'}), 200
 
     return jsonify({'error': 'Missing data, please provide origin, destination, and airline'}), 400
+
+
 @app.route('/unique-values', methods=['GET'])
 @jwt_required()
 def get_unique_values():
@@ -145,6 +147,7 @@ def get_unique_values():
         'airlines': airlines_mapped
     })
 
+
 @app.route('/get-destinations', methods=['GET'])
 @jwt_required()
 def get_destinations():
@@ -154,6 +157,7 @@ def get_destinations():
         destinations = [{"code": code, "name": airport_mapping.get(code, code)} for code in destination_codes]
         return jsonify(destinations)
     return jsonify([])
+
 
 @app.route('/get-airlines', methods=['GET'])
 @jwt_required()
