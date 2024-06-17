@@ -17,15 +17,17 @@ recommendations = {
         'LAX': 'Visit the iconic Hollywood Walk of Fame.',
         'ORD': 'Explore Millennium Park and see the Cloud Gate sculpture in Chicago.',
         'ATL': 'Experience the Georgia Aquarium, one of the largest in the world.',
+        'PHX': 'Explore the Desert Botanical Garden, over 50,000 desert plants in this beautiful 140-acre garden​'
     }
 
 
 
 geolocator = Nominatim(user_agent="CloudCompass")
 
-def get_geocode(place_name):
+def get_geocode(airport_code):
     try:
-        location = geolocator.geocode(place_name)
+        airport_name = airport_mapping.get(airport_code)
+        location = geolocator.geocode(airport_name)
         if location:
             return {'lat': location.latitude, 'lng': location.longitude}
         else:
